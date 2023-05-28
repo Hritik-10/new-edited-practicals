@@ -1,0 +1,213 @@
+ 
+#include <bits/stdc++.h>
+#include <omp.h>
+
+using namespace std;
+
+const int N = 1e5 + 5;
+vector<int> g[N];
+bool vis[N];
+int ans[N];
+int ind=0;
+
+void dfs(int u) {
+    vis[u] = true;
+    ans[ind]=u;
+    ind++;
+    
+    #pragma omp parallel for
+    for (int i = 0; i < g[u].size(); i++) {
+        int v = g[u][i];
+        if (!vis[v])
+            dfs(v);
+    }
+}
+
+
+int main() {
+    int n, m, s;
+    cout<<"enter no of vertices"<<endl;
+    cin >> n ;
+    cout<<"enter no of edges"<<endl;
+    cin>> m ;
+    cout<<"enter strating vertex"<<endl;
+    cin >>s ;
+
+    for (int i = 0; i < m; i++) {
+        int x, y;
+        cout<<"Enter edge"<<endl;
+        cin >> x >> y;
+        g[x].push_back(y);
+        g[y].push_back(x);
+    }
+
+    
+    dfs(s);
+    
+    cout << "The result of traversal:\n";
+    for (int i = 0; i < n; i++) {
+        
+            cout << ans[i]  << " ";
+    }
+    cout << endl;
+
+    return 0;
+}
+
+
+
+/*
+Input:
+
+enter no of vertices
+5
+enter no of edges
+4
+enter strating vertex
+1
+Enter edge
+1 2
+Enter edge
+1 3
+Enter edge
+2 4
+Enter edge
+3 5
+
+
+Output:
+The result of traversal:
+1 2 4 3 5 
+
+*/
+ 
+ 
+ 
+ /*
+ ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+ 
+ Test Case:
+
+Number of vertices (n): 5
+Number of edges (m): 4
+Starting vertex (s): 1
+Edges: (1, 2), (1, 3), (2, 4), (3, 5)
+Explanation:
+
+User input:
+
+Number of vertices: 5
+Number of edges: 4
+Starting vertex: 1
+Edge input:
+
+Edge 1: (1, 2) - There is an edge between vertex 1 and vertex 2.
+Edge 2: (1, 3) - There is an edge between vertex 1 and vertex 3.
+Edge 3: (2, 4) - There is an edge between vertex 2 and vertex 4.
+Edge 4: (3, 5) - There is an edge between vertex 3 and vertex 5.
+Graph construction:
+
+The adjacency list representation of the graph is as follows:
+g[1]: {2, 3}
+g[2]: {1, 4}
+g[3]: {1, 5}
+g[4]: {2}
+g[5]: {3}
+Depth-first search (DFS) traversal:
+
+The DFS traversal starts from vertex 1.
+Iteration 1:
+
+The stack contains {1}.
+Visited vertices: {1}.
+The adjacent vertices of 1 are 2 and 3. They are push to the stack.
+Iteration 2:
+
+The stack contains {2, 3}.
+Visited vertices: {1, 2}.
+The adjacent vertices of 2 are 1 and 4. Vertex 1 is already visited, so only vertex 4 is push to the stack.
+Iteration 3:
+
+The stack contains {4,3}.
+Visited vertices: {1, 2, 4}.
+The adjacent vertices of 4 are 2. Vertex 2 is already visited so continue to next elem in stack.
+Iteration 4:
+
+The queue contains {3}.
+Visited vertices: {1, 2, 4,}.
+The adjacent vertices of 3 are 5. Vertex 5 is already is marked visitedafter poping from stack.
+Iteration 5:
+
+The stack contains { }.
+Visited vertices: {1, 2, 4, 3, 5}.
+stack is empty.
+The traversal is complete.
+
+Output:
+
+The code prints the result of the traversal:
+The visited vertices are: 1, 2, 4, 3, 5.
+Thus, the DFS traversal of the given graph starting from vertex 1 visits all vertices in the graph. The output matches the expected result.
+
+ */
+ 
+ 
+ 
+ /*
+ 
+ in case external asked for root 
+ 
+ code :
+ 
+ #include <iostream>
+#include <omp.h>
+#include <queue>
+
+struct Node {
+    int value;
+    Node* left;
+    Node* right;
+
+    Node(int value) : value(value), left(nullptr), right(nullptr) {}
+};
+
+void dfs(Node* root) {
+    if (root == nullptr)
+        return;
+
+    #pragma omp critical
+    std::cout << "Visited " << root->value << std::endl;
+
+    #pragma omp task
+    dfs(root->left);
+
+    #pragma omp task
+    dfs(root->right);
+}
+
+int main() {
+    // Create a sample tree for testing
+    Node* root = new Node(1);
+    root->left = new Node(4);
+    root->right = new Node(3);
+    root->left->left = new Node(6);
+    root->left->right = new Node(2);
+    root->right->left = new Node(8);
+    root->right->right = new Node(7);
+
+    std::cout << "DFS" << std::endl;
+    #pragma omp parallel
+    {
+        #pragma omp single
+        dfs(root);
+    }
+
+    return 0;
+}
+
+
+ 
+ */
+
+ 
+
